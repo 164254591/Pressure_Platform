@@ -3,11 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "serve": "vue-cli-service serve --mode dev",
+    "build": "vue-cli-service build --mode prd"
   },
   "dependencies": {
+    "axios": "^1.2.3",
     "core-js": "^2.6.5",
+    "element-ui": "^2.15.12",
     "vue": "^2.6.10",
     "vue-router": "^3.0.3"
   },
