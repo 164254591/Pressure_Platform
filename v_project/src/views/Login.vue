@@ -39,7 +39,12 @@ export default {
 .login {
   width: 100%;
   height: 100%;
-  background-image: url("../assets/login.jpg");
+  padding-top: 150px;
+  background-image: url("../assets/login.jpeg");
+  background-size: 100% 100%;
+  background-position: center center;
+  overflow: auto;
+  position: fixed;
 
 
 }
