@@ -1,8 +1,8 @@
 <template>
   <div class="login">
-    <el-card style="float: right;width: 400px">
+    <el-card style="float: right;width: 400px;height: 280px;margin-right: 35%">
       <h2>欢迎登录压测平台</h2>
-      <el-form :model="form_data">
+      <el-form :model="form_data" >
         <el-form-item>
           <el-input prefix-icon="el-icon-user-solid" clearable v-model="form_data.username" placeholder="请输入用户名">{{form_data.username}}</el-input>
         </el-form-item>
@@ -16,6 +16,12 @@
 
 
     </el-card>
+
+    <el-carousel :interval="4000" type="card" height="200px">
+      <el-carousel-item v-for="i in 3" :key="i" style="border-radius: 15px;box-shadow: 4px 4px 8px black">
+      <img :src="require('../assets/'+i+'.png')" style="height: 100%;width: 100%">
+      </el-carousel-item>
+    </el-carousel>
 
   </div>
 
@@ -45,7 +51,5 @@ export default {
   background-position: center center;
   overflow: auto;
   position: fixed;
-
-
 }
 </style>
