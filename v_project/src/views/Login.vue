@@ -11,13 +11,13 @@
           <el-input prefix-icon="el-icon-lock" clearable v-model="form_data.password" placeholder="请输入密码" show-password>{{form_data.password}}</el-input>
         </el-form-item>
       </el-form>
-      <el-button type="success">登录</el-button>
+      <el-button type="success" @click="login">登录</el-button>
       <el-button type="primary">注册</el-button>
 
 
     </el-card>
 
-    <el-carousel :interval="1000" type="card" height="200px">
+    <el-carousel :interval="2000" type="card" height="200px">
       <el-carousel-item v-for="i in 3" :key="i" style="border-radius: 15px;box-shadow: 4px 4px 8px black">
       <img :src="require('../assets/'+i+'.png')" style="height: 100%;width: 100%">
       </el-carousel-item>
@@ -28,6 +28,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: "Login",
   data(){
@@ -37,7 +38,24 @@ export default {
          password:'',
         }
     }
-  }
+  },
+  methods:{
+    login(){
+      axios.post('/login_account/',this.form_data).then(res=>{
+        if(res.data.code==0){
+          alert('登录成功')
+        }else{
+          alert('用户名或密码错误')
+        }
+
+      })
+
+    }
+
+  },
+  mounted() {
+
+  },
 }
 </script>
 
