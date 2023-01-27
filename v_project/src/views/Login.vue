@@ -12,7 +12,7 @@
         </el-form-item>
       </el-form>
       <el-button type="success" @click="login">登录</el-button>
-      <el-button type="primary">注册</el-button>
+      <el-button type="primary" @click="register">注册</el-button>
 
 
     </el-card>
@@ -42,15 +42,24 @@ export default {
   methods:{
     login(){
       axios.post('/login_account/',this.form_data).then(res=>{
-        if(res.data.code==0){
+        if(res.data.code===0){
+          // 用户名写入session
+          sessionStorage.setItem('username',this.form_data.username)
+          //跳转到首页
+          this.$router.replace('/home')
+
           alert('登录成功')
         }else{
-          alert('用户名或密码错误')
+          this.$message({
+            message:'用户名或密码错误！',
+            type:'error'
+          })
         }
-
       })
-
-    }
+    },
+    register(){
+      axios.post()
+    },
 
   },
   mounted() {
