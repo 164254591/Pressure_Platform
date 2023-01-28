@@ -36,3 +36,15 @@ def register_account(request):
         res = {"code": 1, 'message': '注册失败'}
         return HttpResponse(json.dumps(res), content_type='application/json')
 
+
+def get_echarts_data(request):
+    res = {
+        'legend_data': ['项目1', '项目2', '项目3'],
+        'xAxis_data': ['9-15', '9-16', '9-17', '9-18'],
+        'series': [
+            {'name': '项目1', 'data': [3, 9, 5, 8, 7], 'type': 'line'},
+            {'name': '项目2', 'data': [6, 2, 6, 9, 5], 'type': 'line'},
+        ],
+    }
+
+    return HttpResponse(json.dumps(res), content_type='application/json')
