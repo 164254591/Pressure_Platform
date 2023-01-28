@@ -43,12 +43,15 @@ export default {
     login(){
       axios.post('/login_account/',this.form_data).then(res=>{
         if(res.data.code===0){
+          this.$message({
+            message:'登录成功！',
+            type:'success',
+            duration:700,
+          })
           // 用户名写入session
           sessionStorage.setItem('username',this.form_data.username)
           //跳转到首页
           this.$router.replace('/home')
-
-          alert('登录成功')
         }else{
           this.$message({
             message:'用户名或密码错误！',
@@ -58,7 +61,20 @@ export default {
       })
     },
     register(){
-      axios.post()
+      axios.post('register_account/',this.form_data).then(res=>{
+        if(res.data.code===0){
+          this.$message({
+            message:'恭喜你，注册成功！',
+            type:'success'
+          })
+        }
+        else {
+          this.$message({
+            message:'用户名已存在，注册失败！',
+            type:'error'
+          })
+        }
+      })
     },
 
   },

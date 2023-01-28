@@ -27,3 +27,12 @@ def login_account(request):
 # 注册函数
 def register_account(request):
     form_data = json.loads(request.body)
+    try:
+        user = User.objects.create_user(username=form_data['username'], password=form_data['password'])
+        user.save()
+        res = {"code": 0, 'message': '注册成功'}
+        return HttpResponse(json.dumps(res), content_type='application/json')
+    except:
+        res = {"code": 1, 'message': '注册失败'}
+        return HttpResponse(json.dumps(res), content_type='application/json')
+

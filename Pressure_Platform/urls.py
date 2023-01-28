@@ -23,6 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', TemplateView.as_view(template_name='index.html')),
     path('login_account/', login_account),
-    # path('home/',)
+    path('register_account/', register_account)
 
 ]

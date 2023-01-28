@@ -1,6 +1,6 @@
 <template>
   <div>
-    <span>欢迎来到首页,{{username}}</span>
+    <h2>欢迎来到首页,{{username}}</h2>
   </div>
 </template>
 
