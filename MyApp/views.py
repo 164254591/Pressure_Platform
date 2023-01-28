@@ -13,7 +13,7 @@ def login_account(request):
     form_data = json.loads(request.body)
     # 用这个用户/密码去数据库表中查找，如果找到就返回用户名，否则返回None
     USER = auth.authenticate(username=form_data['username'], password=form_data['password'])
-    print(USER)
+    # print(USER)
     if USER:
         auth.login(request, USER)
         request.session['username'] = form_data['username']
