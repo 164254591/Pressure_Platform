@@ -5,6 +5,7 @@ import json
 from django.http import HttpResponse
 from django.contrib import auth
 from django.contrib.auth.models import User
+from MyApp.models import *
 
 
 # Create your views here.
@@ -48,3 +49,22 @@ def get_echarts_data(request):
     }
 
     return HttpResponse(json.dumps(res), content_type='application/json')
+
+
+# 查询
+def get_projects(request):
+    projects = list(DB_Projects.objects.all().values())  # 返回一个列表内容为字典[{},{}]
+    return HttpResponse(json.dumps(projects))
+
+
+# 默认新增
+def add_project(request):
+    DB_Projects.objects.create()
+    return get_projects(request)
+
+
+# 删除
+def delete_project(request):
+    project_id = request.GET['project_id']
+    DB_Projects.objects.filter(id=project_id).delete()
+    return get_projects(request)

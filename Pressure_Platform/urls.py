@@ -25,5 +25,9 @@ urlpatterns = [
     path('login_account/', login_account),
     path('register_account/', register_account),
     path('get_echarts_data/', get_echarts_data),
+    path('get_projects/', get_projects),
+    path('add_project/', add_project),
+    path('delete_project/', delete_project),
+
 
 ]
