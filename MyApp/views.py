@@ -68,3 +68,17 @@ def delete_project(request):
     project_id = request.GET['project_id']
     DB_Projects.objects.filter(id=project_id).delete()
     return get_projects(request)
+
+
+# 项目详情
+def get_project_detail(request):
+    project_id = request.GET['project_id']
+    project_detail = list(DB_Projects.objects.filter(id=project_id).values())[0]
+    return HttpResponse(json.dumps(project_detail))
+
+
+def save_project(request):
+    form = json.loads(request.body.decode('utf-8'))
+    id = form['id']
+    DB_Projects.objects.filter(id=id).update(**form)
+    return HttpResponse('')

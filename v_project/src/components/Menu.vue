@@ -36,7 +36,7 @@
       <el-table :data="projects">
         <el-table-column prop="id" label="编号" width="50px"></el-table-column>
         <el-table-column prop="name" label="名称"></el-table-column>
-        <el-table-column prop="scripts" label="脚本" width="100px"></el-table-column>
+<!--        <el-table-column prop="scripts" label="脚本" width="100px"></el-table-column>-->
         <el-table-column prop="plan" label="计划" ></el-table-column>
         <el-table-column width="150px">
           <template slot="header">
