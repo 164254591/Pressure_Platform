@@ -32,32 +32,23 @@
       </el-submenu>
     </el-menu>
 
-    <el-dialog title="项目列表" :visible.sync="project_list_visible" style="line-height:18px;width: 1800px">
+    <el-dialog title="项目列表" :visible.sync="project_list_visible" style="line-height:18px;width: 100%;">
       <el-table :data="projects">
-        <el-table-column
-          prop="id"
-          label="编号"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          label="名称"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="scripts"
-          label="脚本"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="plan"
-          label="计划"
-          width="180">
-        </el-table-column>
-        <el-table-column
-          prop="plan"
-          label="计划"
-          width="180">
+        <el-table-column prop="id" label="编号" width="50px"></el-table-column>
+        <el-table-column prop="name" label="名称"></el-table-column>
+        <el-table-column prop="scripts" label="脚本" width="100px"></el-table-column>
+        <el-table-column prop="plan" label="计划" ></el-table-column>
+        <el-table-column width="150px">
+          <template slot="header">
+            <el-button style="width: 121px" @click="add_project">新增项目</el-button>
+          </template>
+          <template slot-scope="scope">
+            <router-link :to="'/project_detail/?project_id='+scope.row.id">
+              <el-button size="mini" type="success">进入</el-button>
+            </router-link>
+            &nbsp;
+            <el-button size="mini" type="danger" @click="delete_project(scope.row.id)">删除</el-button>
+          </template>
         </el-table-column>
 
       </el-table>
@@ -83,6 +74,19 @@ export default {
     logout(){
         sessionStorage.clear()
         window.location.href = '/'
+    },
+    add_project(){
+      axios.get('/add_project/').then(res=>{
+        this.projects=res.data
+      })
+    },
+    delete_project(project_id){
+      axios.get('/delete_project/',{
+        params:{
+        project_id:project_id
+        }}).then(res=>{
+        this.projects=res.data
+      })
     },
   },
   mounted() {
