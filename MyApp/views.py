@@ -54,7 +54,7 @@ def get_echarts_data(request):
 # 查询
 def get_projects(request):
     projects = list(DB_Projects.objects.all().values())  # 返回一个列表内容为字典[{},{}]
-    return HttpResponse(json.dumps(projects))
+    return HttpResponse(json.dumps(projects), content_type='application/json')
 
 
 # 默认新增

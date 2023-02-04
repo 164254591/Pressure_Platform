@@ -14,7 +14,7 @@
           <i class="el-icon-menu"></i>
           <span>功能区</span>
         </template>
-        <el-menu-item index="/project">项目管理</el-menu-item>
+        <el-menu-item @click="project_list_visible=true">项目管理</el-menu-item>
         <el-menu-item index="/task">任务面板</el-menu-item>
         <el-menu-item index="/env">环境管理</el-menu-item>
       </el-submenu>
@@ -30,17 +30,51 @@
         <el-menu-item>任务面板</el-menu-item>
         <el-menu-item>环境管理</el-menu-item>
       </el-submenu>
-
     </el-menu>
+
+    <el-dialog title="项目列表" :visible.sync="project_list_visible" style="line-height:18px;width: 1800px">
+      <el-table :data="projects">
+        <el-table-column
+          prop="id"
+          label="编号"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="name"
+          label="名称"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="scripts"
+          label="脚本"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="plan"
+          label="计划"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="plan"
+          label="计划"
+          width="180">
+        </el-table-column>
+
+      </el-table>
+
+    </el-dialog>
 
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 export default {
   name: "Menu",
   data(){
     return{
+      projects:[],
+      project_list_visible:false,
       username:'',
       nowpath:window.location.href.split('#')[1].split('?')[0]
     }
@@ -56,7 +90,12 @@ export default {
     // 防止直接通过http://localhost:8080/#/home访问，强行跳转到登录页面
     if(this.username==null){
       window.location.href = '/'
-    }
+    };
+    axios.get('/get_projects/').then(res=>{
+      this.projects=res.data
+    })
+
+
   }
 }
 </script>
