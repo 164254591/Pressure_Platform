@@ -44,7 +44,7 @@
           </template>
           <template slot-scope="scope">
             <router-link :to="'/project_detail/?project_id='+scope.row.id">
-              <el-button size="mini" type="success">进入</el-button>
+              <el-button size="mini" type="success" @click="into(scope.row.id)">进入</el-button>
             </router-link>
             &nbsp;
             <el-button size="mini" type="danger" @click="delete_project(scope.row.id)">删除</el-button>
@@ -88,6 +88,11 @@ export default {
         this.projects=res.data
       })
     },
+    into(id){
+      this.$router.push('/project_detail/?project_id='+id);
+      this.$router
+      window.location.reload()
+    }
   },
   mounted() {
     this.username=sessionStorage.getItem('username')

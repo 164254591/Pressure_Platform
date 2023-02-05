@@ -33,6 +33,7 @@
                   :action="get_action()"
                   :limit="1"
                   name="script_file"
+                  :on-success="get_script_list"
               >
                 <el-button size="mini" type="primary">上传脚本</el-button>
                 <span style="font-size: xx-small;color: darkgray">（上传同名脚本会覆盖）</span>
@@ -42,7 +43,7 @@
               <el-input v-model="project_detail.plan"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="save_project">保存</el-button>
+              <el-button type="primary" @click="run">加入队列</el-button>
               <el-button @click="restore">恢复默认</el-button>
             </el-form-item>
 
@@ -73,8 +74,9 @@ export default {
     restore(){
       window.location.reload()
     },
-    save_project(){
+    run(){
       axios.post('/save_project/',this.project_detail).then(res=>{
+        axios.get('//')
         this.$message({
           message:'保存成功！',
           type:"success",
@@ -83,6 +85,11 @@ export default {
     },
     get_action(){
       return process.env.VUE_APP_BASE_URL+'/upload_script_file/'
+    },
+    get_script_list(){
+       axios.get('/get_script_list/').then(res=>{
+      this.script_list=res.data
+        });
     }
 
   },
@@ -93,10 +100,8 @@ export default {
       }}).then(res=>{
         this.project_detail=res.data
     });
-    axios.get('/get_script_list/').then(res=>{
-      this.script_list=res.data
-        });
 
+    this.get_script_list();
 
   },
   components: {

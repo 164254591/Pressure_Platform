@@ -100,4 +100,5 @@ def upload_script_file(request):
 # 获取脚本列表
 def get_script_list(request):
     script_list = os.listdir('scripts')
+    # print(script_list)
     return HttpResponse(json.dumps(script_list))
