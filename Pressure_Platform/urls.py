@@ -30,5 +30,7 @@ urlpatterns = [
     path('delete_project/', delete_project),
     path('get_project_detail/', get_project_detail),
     path('save_project/', save_project),
+    path('upload_script_file/', upload_script_file),
+    path('get_script_list/', get_script_list),
 
 ]

@@ -19,7 +19,24 @@
               <el-input v-model="project_detail.name"></el-input>
             </el-form-item>
             <el-form-item label="脚本列表:" style="text-align: left;">
-              <el-input v-model="project_detail.scripts"></el-input>
+              <el-select v-model="project_detail.scripts" multiple placeholder="请选择脚本" style="width: 100%">
+                <el-option
+                  v-for="(i,index) in script_list"
+                  :label="'【'+index+'】'+i"
+                  :value="i"
+                >
+                </el-option>
+              </el-select>
+
+              <el-upload
+                  style="float: left"
+                  :action="get_action()"
+                  :limit="1"
+                  name="script_file"
+              >
+                <el-button size="mini" type="primary">上传脚本</el-button>
+                <span style="font-size: xx-small;color: darkgray">（上传同名脚本会覆盖）</span>
+              </el-upload>
             </el-form-item>
             <el-form-item label="压测计划:" style="text-align: left;">
               <el-input v-model="project_detail.plan"></el-input>
@@ -48,6 +65,7 @@ export default {
   data() {
     return {
       project_detail:{},
+      script_list:[],
 
     }
   },
@@ -62,6 +80,9 @@ export default {
           type:"success",
         })
       })
+    },
+    get_action(){
+      return process.env.VUE_APP_BASE_URL+'/upload_script_file/'
     }
 
   },
@@ -71,7 +92,11 @@ export default {
         project_id:this.$route.query.project_id
       }}).then(res=>{
         this.project_detail=res.data
-    })
+    });
+    axios.get('/get_script_list/').then(res=>{
+      this.script_list=res.data
+        });
+
 
   },
   components: {

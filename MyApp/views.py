@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.contrib import auth
 from django.contrib.auth.models import User
 from MyApp.models import *
+import os
 
 
 # Create your views here.
@@ -74,6 +75,7 @@ def delete_project(request):
 def get_project_detail(request):
     project_id = request.GET['project_id']
     project_detail = list(DB_Projects.objects.filter(id=project_id).values())[0]
+    project_detail['scripts'] = eval(project_detail['scripts'])
     return HttpResponse(json.dumps(project_detail))
 
 
@@ -82,3 +84,20 @@ def save_project(request):
     id = form['id']
     DB_Projects.objects.filter(id=id).update(**form)
     return HttpResponse('')
+
+
+# 上传文件
+def upload_script_file(request):
+    myFile = request.FILES.get('script_file')
+    file_name = str(myFile)
+    fp = open('scripts/' + file_name, 'wb+')
+    for i in myFile.chunks():
+        fp.write(i)
+    fp.close()
+    return HttpResponse('')
+
+
+# 获取脚本列表
+def get_script_list(request):
+    script_list = os.listdir('scripts')
+    return HttpResponse(json.dumps(script_list))
