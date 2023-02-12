@@ -1,4 +1,6 @@
 # -*- coding:utf-8 -*-
+import time
+
 from django.shortcuts import render
 
 import json
@@ -102,3 +104,16 @@ def get_script_list(request):
     script_list = os.listdir('scripts')
     # print(script_list)
     return HttpResponse(json.dumps(script_list))
+
+
+def get_tasks(request):
+    tasks = list(DB_tasks.objects.all().values())
+    return HttpResponse(json.dumps(tasks))
+
+
+def add_tasks(request):
+    des = request.GET['des']
+    project_id = request.GET['project_id']
+    DB_tasks.objects.create(des=des, project_id=int(project_id), stime=str(time.strftime('%Y-%m-%d %H:%M:%S')))
+    return get_tasks(request)
+

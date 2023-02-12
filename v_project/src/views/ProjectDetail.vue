@@ -43,7 +43,7 @@
               <el-input v-model="project_detail.plan"></el-input>
             </el-form-item>
             <el-form-item>
-              <el-button type="primary" @click="run">加入队列</el-button>
+              <el-button type="primary" @click="run_visible=true">加入队列</el-button>
               <el-button @click="restore">恢复默认</el-button>
             </el-form-item>
 
@@ -51,6 +51,14 @@
         </el-main>
       </el-container>
     </el-container>
+
+    <el-dialog title="新建任务队列..." :visible.sync="run_visible">
+      <el-input v-model="des" placeholder="请输入任务描述"></el-input>
+      <br><br>
+      <el-button @click="run">确定</el-button>
+      <el-button @click="run_visible=false">取消</el-button>
+
+    </el-dialog>
 
   </div>
 </template>
@@ -67,6 +75,8 @@ export default {
     return {
       project_detail:{},
       script_list:[],
+      des:'',
+      run_visible:false,
 
     }
   },
@@ -76,12 +86,19 @@ export default {
     },
     run(){
       axios.post('/save_project/',this.project_detail).then(res=>{
-        axios.get('//')
-        this.$message({
+        axios.get('/add_task/',{
+          params:{
+            des:this.des,
+            project_id:this.project_detail.id
+          }
+        }).then(res=>{
+          this.run_visible=false;
+          this.$message({
           message:'保存成功！',
           type:"success",
         })
-      })
+        })
+      });
     },
     get_action(){
       return process.env.VUE_APP_BASE_URL+'/upload_script_file/'

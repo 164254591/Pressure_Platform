@@ -32,5 +32,7 @@ urlpatterns = [
     path('save_project/', save_project),
     path('upload_script_file/', upload_script_file),
     path('get_script_list/', get_script_list),
+    path('get_tasks/', get_tasks),
+    path('add_tasks/', add_tasks),
 
 ]
