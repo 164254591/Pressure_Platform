@@ -86,7 +86,7 @@ export default {
     },
     run(){
       axios.post('/save_project/',this.project_detail).then(res=>{
-        axios.get('/add_task/',{
+        axios.get('/add_tasks/',{
           params:{
             des:this.des,
             project_id:this.project_detail.id

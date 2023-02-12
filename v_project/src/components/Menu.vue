@@ -15,7 +15,7 @@
           <span>功能区</span>
         </template>
         <el-menu-item @click="project_list_visible=true">项目管理</el-menu-item>
-        <el-menu-item index="/task">任务面板</el-menu-item>
+        <el-menu-item @click="get_tasks" >任务面板</el-menu-item>
         <el-menu-item index="/env">环境管理</el-menu-item>
       </el-submenu>
 
@@ -36,7 +36,6 @@
       <el-table :data="projects">
         <el-table-column prop="id" label="编号" width="50px"></el-table-column>
         <el-table-column prop="name" label="名称"></el-table-column>
-<!--        <el-table-column prop="scripts" label="脚本" width="100px"></el-table-column>-->
         <el-table-column prop="plan" label="计划" ></el-table-column>
         <el-table-column width="150px">
           <template slot="header">
@@ -52,9 +51,23 @@
         </el-table-column>
 
       </el-table>
-
     </el-dialog>
+    <el-dialog title="任务面板" width="60%" :visible.sync="task_visible" style="line-height:18px;width:80%">
+      <el-table :data="tasks">
+        <el-table-column prop="id" label="编号" width="50px"></el-table-column>
+        <el-table-column prop="project_id" label="项目id"></el-table-column>
+        <el-table-column prop="stime" label="创建时间" width="180px"></el-table-column>
+        <el-table-column prop="status" label="状态" ></el-table-column>
+        <el-table-column prop="des" label="任务描述" ></el-table-column>
+        <el-table-column label='操作' width="150px">
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="into(scope.row.id)">报告</el-button>
+            <el-button size="mini" type="danger" @click="delete_project(scope.row.id)">终止</el-button>
+          </template>
+        </el-table-column>
 
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -67,7 +80,9 @@ export default {
       projects:[],
       project_list_visible:false,
       username:'',
-      nowpath:window.location.href.split('#')[1].split('?')[0]
+      nowpath:window.location.href.split('#')[1].split('?')[0],
+      task_visible:false,
+      tasks:[],
     }
   },
   methods:{
@@ -92,7 +107,13 @@ export default {
       this.$router.push('/project_detail/?project_id='+id);
       this.$router
       window.location.reload()
-    }
+    },
+    get_tasks(){
+      this.task_visible=true;
+      axios.get('/get_tasks/').then(res=>{
+        this.tasks=res.data
+      })
+    },
   },
   mounted() {
     this.username=sessionStorage.getItem('username')
