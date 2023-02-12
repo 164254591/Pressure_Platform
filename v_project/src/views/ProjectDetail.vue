@@ -52,7 +52,7 @@
       </el-container>
     </el-container>
 
-    <el-dialog title="新建任务队列..." :visible.sync="run_visible">
+    <el-dialog :close-on-click-modal='false' title="新建任务队列..." :visible.sync="run_visible">
       <el-input v-model="des" placeholder="请输入任务描述"></el-input>
       <br><br>
       <el-button @click="run">确定</el-button>

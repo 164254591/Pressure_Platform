@@ -107,7 +107,7 @@ def get_script_list(request):
 
 
 def get_tasks(request):
-    tasks = list(DB_tasks.objects.all().values())
+    tasks = list(DB_tasks.objects.all().values())[::-1]
     return HttpResponse(json.dumps(tasks))
 
 

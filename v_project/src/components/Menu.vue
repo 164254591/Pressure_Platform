@@ -57,7 +57,11 @@
         <el-table-column prop="id" label="编号" width="50px"></el-table-column>
         <el-table-column prop="project_id" label="项目id"></el-table-column>
         <el-table-column prop="stime" label="创建时间" width="180px"></el-table-column>
-        <el-table-column prop="status" label="状态" ></el-table-column>
+        <el-table-column  label="状态" >
+          <template slot-scope="scope">
+            <p :style="{color:getColor(scope.row.status)}"><strong>{{ scope.row.status }}</strong></p>
+          </template>
+        </el-table-column>
         <el-table-column prop="des" label="任务描述" ></el-table-column>
         <el-table-column label='操作' width="150px">
           <template slot-scope="scope">
@@ -86,6 +90,15 @@ export default {
     }
   },
   methods:{
+    getColor(status){
+      if(status=='队列中'){
+        return 'blue'
+      }else if (status=='压测中'){
+        return 'green'
+      }else{
+        return 'black'
+      }
+    },
     logout(){
         sessionStorage.clear()
         window.location.href = '/'
