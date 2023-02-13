@@ -32,7 +32,7 @@
       </el-submenu>
     </el-menu>
 
-    <el-dialog title="项目列表" :visible.sync="project_list_visible" style="line-height:18px;width: 100%;">
+    <el-dialog  title="项目列表" :visible.sync="project_list_visible" style="line-height:18px;width: 100%;">
       <el-table :data="projects">
         <el-table-column prop="id" label="编号" width="50px"></el-table-column>
         <el-table-column prop="name" label="名称"></el-table-column>
@@ -52,7 +52,7 @@
 
       </el-table>
     </el-dialog>
-    <el-dialog title="任务面板" width="60%" :visible.sync="task_visible" style="line-height:18px;width:80%">
+    <el-dialog :before-close="close_tasks" title="任务面板" width="60%" :visible.sync="task_visible" style="line-height:18px;width:80%">
       <el-table :data="tasks">
         <el-table-column prop="id" label="编号" width="50px"></el-table-column>
         <el-table-column prop="project_id" label="项目id"></el-table-column>
@@ -123,10 +123,22 @@ export default {
     },
     get_tasks(){
       this.task_visible=true;
+      this.get_tasks_act();
+      //自动重复执行
+      this.t1 = setInterval(()=>{
+        this.get_tasks_act()
+      },1000)
+    },
+    close_tasks(done){
+      clearInterval(this.t1)
+      done()
+    },
+    get_tasks_act(){
       axios.get('/get_tasks/').then(res=>{
         this.tasks=res.data
       })
-    },
+    }
+
   },
   mounted() {
     this.username=sessionStorage.getItem('username')
