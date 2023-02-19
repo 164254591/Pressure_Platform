@@ -9,6 +9,7 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from MyApp.models import *
 import os
+from django_task_mq import mq_producer
 
 
 # Create your views here.
@@ -114,6 +115,16 @@ def get_tasks(request):
 def add_tasks(request):
     des = request.GET['des']
     project_id = request.GET['project_id']
-    DB_tasks.objects.create(des=des, project_id=int(project_id), stime=str(time.strftime('%Y-%m-%d %H:%M:%S')))
+    new = DB_tasks.objects.create(des=des, project_id=int(project_id), stime=str(time.strftime('%Y-%m-%d %H:%M:%S')))
+    mq_producer(DB_django_task_mq, topic='yace', message={'task_id': new.id})
     return get_tasks(request)
 
+
+def play(message):
+    message = json.loads(message)
+    task_id = message['task_id']
+    DB_tasks.objects.filter(id=int(task_id)).update(status='压测中')
+    # --------------
+    time.sleep(10)
+    # ---------------
+    DB_tasks.objects.filter(id=int(task_id)).update(status='已结束')
