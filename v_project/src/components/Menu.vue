@@ -108,6 +108,7 @@ export default {
       projects_pz:5,
       part_projects:[],
       projects_pageNumber:1,
+
       tasks_total:0,
       tasks_pz:5,
       part_tasks:[],
