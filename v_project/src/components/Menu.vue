@@ -33,7 +33,7 @@
     </el-menu>
 
     <el-dialog  title="项目列表" :visible.sync="project_list_visible" style="line-height:18px;width: 100%;">
-      <el-table :data="projects">
+      <el-table :data="part_projects">
         <el-table-column prop="id" label="编号" width="50px"></el-table-column>
         <el-table-column prop="name" label="名称"></el-table-column>
         <el-table-column prop="plan" label="计划" ></el-table-column>
@@ -51,9 +51,18 @@
         </el-table-column>
 
       </el-table>
+      <br>
+      <el-pagination
+        small
+        layout="prev,pager,next"
+        :total="projects_total"
+        :page-size="projects_pz"
+        @current-change = 'projects_cc'>
+      </el-pagination>
     </el-dialog>
+
     <el-dialog :before-close="close_tasks" title="任务面板" width="60%" :visible.sync="task_visible" style="line-height:18px;width:80%">
-      <el-table :data="tasks">
+      <el-table :data="part_tasks">
         <el-table-column prop="id" label="编号" width="50px"></el-table-column>
         <el-table-column prop="project_id" label="项目id"></el-table-column>
         <el-table-column prop="stime" label="创建时间" width="180px"></el-table-column>
@@ -69,8 +78,15 @@
             <el-button size="mini" type="danger" @click="delete_project(scope.row.id)">终止</el-button>
           </template>
         </el-table-column>
-
       </el-table>
+      <br>
+      <el-pagination
+        small
+        layout="prev,pager,next"
+        :total="tasks_total"
+        :page-size="tasks_pz"
+        @current-change = 'tasks_cc'>
+      </el-pagination>
     </el-dialog>
   </div>
 </template>
@@ -87,9 +103,33 @@ export default {
       nowpath:window.location.href.split('#')[1].split('?')[0],
       task_visible:false,
       tasks:[],
+      // 翻页参数
+      projects_total:0,
+      projects_pz:5,
+      part_projects:[],
+      projects_pageNumber:1,
+      tasks_total:0,
+      tasks_pz:5,
+      part_tasks:[],
+      tasks_pageNumber:1,
     }
   },
   methods:{
+    projects_cc(pageNumber){
+      if (pageNumber-this.projects_total/this.projects_pz>=1){
+        pageNumber--;
+      }
+      this.part_projects=this.projects.slice((pageNumber-1)*this.projects_pz,pageNumber*this.projects_pz)
+      this.projects_pageNumber=pageNumber
+    },
+    tasks_cc(pageNumber){
+      if (pageNumber-this.tasks_total/this.tasks_pz>=1){
+        pageNumber--;
+      }
+      this.part_tasks=this.tasks.slice((pageNumber-1)*this.tasks_pz,pageNumber*this.tasks_pz)
+      this.tasks_pageNumber=pageNumber
+    },
+
     getColor(status){
       if(status=='队列中'){
         return 'blue'
@@ -106,6 +146,8 @@ export default {
     add_project(){
       axios.get('/add_project/').then(res=>{
         this.projects=res.data
+        this.projects_total=res.data.length
+        this.projects_cc(this.projects_pageNumber)
       })
     },
     delete_project(project_id){
@@ -114,6 +156,8 @@ export default {
         project_id:project_id
         }}).then(res=>{
         this.projects=res.data
+        this.projects_total=res.data.length
+        this.projects_cc(this.projects_pageNumber)
       })
     },
     into(id){
@@ -136,6 +180,8 @@ export default {
     get_tasks_act(){
       axios.get('/get_tasks/').then(res=>{
         this.tasks=res.data
+        this.tasks_total=this.tasks.length
+        this.tasks_cc(this.tasks_pageNumber)
       })
     }
 
@@ -148,6 +194,8 @@ export default {
     };
     axios.get('/get_projects/').then(res=>{
       this.projects=res.data
+      this.projects_total=res.data.length
+      this.projects_cc(1)
     })
 
 
