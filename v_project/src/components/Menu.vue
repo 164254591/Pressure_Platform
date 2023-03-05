@@ -63,8 +63,9 @@
 
     <el-dialog :before-close="close_tasks" title="任务面板" width="60%" :visible.sync="task_visible" style="line-height:18px;width:80%">
       <el-table :data="part_tasks">
-        <el-table-column prop="id" label="编号" width="50px"></el-table-column>
-        <el-table-column prop="project_id" label="项目id"></el-table-column>
+        <el-table-column prop="id" label="任务ID" ></el-table-column>
+        <el-table-column prop="mq_id" label="消息ID" ></el-table-column>
+        <el-table-column prop="project_id" label="项目ID"></el-table-column>
         <el-table-column prop="stime" label="创建时间" width="180px"></el-table-column>
         <el-table-column  label="状态" >
           <template slot-scope="scope">

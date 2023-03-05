@@ -118,7 +118,9 @@ def add_tasks(request):
     des = request.GET['des']
     project_id = request.GET['project_id']
     new = DB_tasks.objects.create(des=des, project_id=int(project_id), stime=str(time.strftime('%Y-%m-%d %H:%M:%S')))
-    mq_producer(DB_django_task_mq, topic='yace', message={'task_id': new.id})
+    mq_id = mq_producer(DB_django_task_mq, topic='yace', message={'task_id': new.id})
+    new.mq_id = mq_id
+    new.save()
     return get_tasks(request)
 
 
@@ -146,13 +148,14 @@ def play(message):
     # 根据任务关联的项目id，去数据库找出这项目的所有内容
     project = DB_Projects.objects.filter(id=int(task[0].project_id))[0]
     scripts = eval(project.scripts)
+    print(scripts)
     for step in project.plan.split(','):
         script = scripts[int(step.split('-')[0])]  # 脚本序号
-        # print(script)
+        print(script)
         num = int(step.split('-')[1])  # 并发数
         round = int(step.split('-')[2])  # 轮次
         filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', script)
-        # print(filepath)
+        print(filepath)
 
         trs = []
         for r in range(round):
@@ -160,8 +163,8 @@ def play(message):
             tr.setDaemon(True)
             trs.append(tr)
         for tr in trs:
-            time.sleep(1)
             tr.start()
+            time.sleep(5)
         for tr in trs:
             tr.join()
         print('-------------结束了一阶段的压测计划---------------')
