@@ -1,4 +1,6 @@
 # -*- coding:utf-8 -*-
+import subprocess
+import threading
 import time
 
 from django.shortcuts import render
@@ -121,10 +123,48 @@ def add_tasks(request):
 
 
 def play(message):
+    def doit(filepath):
+        subprocess.call('python ' + filepath, shell=True)
+
+    def one_round(filepath):
+        ts = []
+        for n in range(num):
+            t = threading.Thread(target=doit, args=(filepath,))
+            t.setDaemon(True)
+            ts.append(t)
+        for t in ts:
+            t.start()
+        for t in ts:
+            t.join()
+        print('----------结束了一轮次的压测计划--------------')
+
     message = json.loads(message)
     task_id = message['task_id']
-    DB_tasks.objects.filter(id=int(task_id)).update(status='压测中')
+    task = DB_tasks.objects.filter(id=int(task_id))
+    task.update(status='压测中')
     # --------------
-    time.sleep(10)
+    # 根据任务关联的项目id，去数据库找出这项目的所有内容
+    project = DB_Projects.objects.filter(id=int(task[0].project_id))[0]
+    scripts = eval(project.scripts)
+    for step in project.plan.split(','):
+        script = scripts[int(step.split('-')[0])]  # 脚本序号
+        # print(script)
+        num = int(step.split('-')[1])  # 并发数
+        round = int(step.split('-')[2])  # 轮次
+        filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', script)
+        # print(filepath)
+
+        trs = []
+        for r in range(round):
+            tr = threading.Thread(target=one_round, args=(filepath,))
+            tr.setDaemon(True)
+            trs.append(tr)
+        for tr in trs:
+            time.sleep(1)
+            tr.start()
+        for tr in trs:
+            tr.join()
+        print('-------------结束了一阶段的压测计划---------------')
+
     # ---------------
-    DB_tasks.objects.filter(id=int(task_id)).update(status='已结束')
+    task.update(status='已结束')
