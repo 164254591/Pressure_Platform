@@ -61,7 +61,7 @@
       </el-pagination>
     </el-dialog>
 
-    <el-dialog :before-close="close_tasks" title="任务面板" width="60%" :visible.sync="task_visible" style="line-height:18px;width:80%">
+    <el-dialog :before-close="close_tasks" title="任务面板" width="65%" :visible.sync="task_visible" style="line-height:18px;width:80%">
       <el-table :data="part_tasks">
         <el-table-column prop="id" label="任务ID" ></el-table-column>
         <el-table-column prop="mq_id" label="消息ID" ></el-table-column>
@@ -75,8 +75,8 @@
         <el-table-column prop="des" label="任务描述" ></el-table-column>
         <el-table-column label='操作' width="150px">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="into(scope.row.id)">报告</el-button>
-            <el-button size="mini" type="danger" @click="delete_project(scope.row.id)">终止</el-button>
+            <el-button size="mini" type="primary" >报告</el-button>
+            <el-button :id="'stop_btn'+scope.row.id" size="mini" type="danger" @click="stop(scope.row.id)">终止</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -131,7 +131,6 @@ export default {
       this.part_tasks=this.tasks.slice((pageNumber-1)*this.tasks_pz,pageNumber*this.tasks_pz)
       this.tasks_pageNumber=pageNumber
     },
-
     getColor(status){
       if(status=='队列中'){
         return 'blue'
@@ -185,7 +184,18 @@ export default {
         this.tasks_total=this.tasks.length
         this.tasks_cc(this.tasks_pageNumber)
       })
-    }
+    },
+    stop(id){
+      var d =document.getElementById('stop_btn'+id)
+      d.innerText='终止中...'
+      axios.get('/stop_task/?id='+id).then(res=>{
+        d.innerText='已终止'
+        this.$message({
+          message:'终止成功！',
+          type:"error"
+        })
+      })
+    },
 
   },
   mounted() {

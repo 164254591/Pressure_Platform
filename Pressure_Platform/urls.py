@@ -34,5 +34,6 @@ urlpatterns = [
     path('get_script_list/', get_script_list),
     path('get_tasks/', get_tasks),
     path('add_tasks/', add_tasks),
+    path('stop_task/', stop_task),
 
 ]

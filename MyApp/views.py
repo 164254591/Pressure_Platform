@@ -124,9 +124,9 @@ def add_tasks(request):
     return get_tasks(request)
 
 
-def play(message):
+def play(mq):
     def doit(filepath):
-        subprocess.call('python ' + filepath, shell=True)
+        subprocess.call('python ' + filepath + ' mq_id=' + str(mq.id), shell=True)
 
     def one_round(filepath):
         ts = []
@@ -140,7 +140,7 @@ def play(message):
             t.join()
         print('----------结束了一轮次的压测计划--------------')
 
-    message = json.loads(message)
+    message = json.loads(mq.message)
     task_id = message['task_id']
     task = DB_tasks.objects.filter(id=int(task_id))
     task.update(status='压测中')
@@ -171,3 +171,44 @@ def play(message):
 
     # ---------------
     task.update(status='已结束')
+
+
+# 终止压测任务
+def stop_task(request):
+    def s_mac():
+        ts = subprocess.check_output('ps -ef |grep mq_id=%s |grep -v "grep"' % str(mq_id), shell=True)
+        for t in str(ts).split('mq_id='+str(mq_id)):
+            ...
+
+    def s_win():
+        subprocess.check_output('wmic process where caption="python.exe" get processid,commandline', shell=True)
+
+    task_id = request.GET['id']
+    task = DB_tasks.objects.filter(id=int(task_id))[0]
+    mq_id = task.mq_id
+    if task.status == '队列中':
+        DB_django_task_mq.objects.filter(id=int(mq_id)).delete()
+        task.status = '队列中结束'
+        task.save()
+    if task.status == '压测中':
+        task.stop = True
+        task.save()
+
+        for j in range(1000):
+            # while True:
+            now_task = DB_tasks.objects.filter(id=task_id)[0]
+            if now_task.status == '压测中':
+                try:
+                    s_mac()
+                except:
+                    break
+                finally:
+                    now_task.status = '压测中时结束'
+                    now_task.save()
+            else:
+                break
+    else:
+        pass
+    return HttpResponse('')
+
+    return HttpResponse('')
