@@ -1,4 +1,5 @@
 # -*- coding:utf-8 -*-
+import re
 import subprocess
 import threading
 import time
@@ -177,8 +178,11 @@ def play(mq):
 def stop_task(request):
     def s_mac():
         ts = subprocess.check_output('ps -ef |grep mq_id=%s |grep -v "grep"' % str(mq_id), shell=True)
-        for t in str(ts).split('mq_id='+str(mq_id)):
-            ...
+        for t in str(ts).split('mq_id=' + str(mq_id)):
+            s = re.findall(r'\b(\d+?)\b', t)[:3]
+            if s:
+                pid = max([int(i) for i in s])
+                subprocess.call('kill -9 '+str(pid))
 
     def s_win():
         subprocess.check_output('wmic process where caption="python.exe" get processid,commandline', shell=True)
@@ -203,7 +207,7 @@ def stop_task(request):
                 except:
                     break
                 finally:
-                    now_task.status = '压测中时结束'
+                    now_task.status = '异常数据结束'
                     now_task.save()
             else:
                 break
