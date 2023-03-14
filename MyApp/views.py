@@ -163,7 +163,12 @@ def play(mq):
             tr = threading.Thread(target=one_round, args=(filepath,))
             tr.setDaemon(True)
             trs.append(tr)
+        # tr是轮
         for tr in trs:
+            # 路障
+            now_task = DB_tasks.objects.filter(id=task_id)[0]
+            if now_task.stop == True:
+                break
             tr.start()
             time.sleep(5)
         for tr in trs:
@@ -182,10 +187,14 @@ def stop_task(request):
             s = re.findall(r'\b(\d+?)\b', t)[:3]
             if s:
                 pid = max([int(i) for i in s])
-                subprocess.call('kill -9 '+str(pid))
+                subprocess.call('kill -9 ' + str(pid))
 
     def s_win():
-        subprocess.check_output('wmic process where caption="python.exe" get processid,commandline', shell=True)
+        ts = subprocess.check_output('wmic process where caption="python.exe" get processid,commandline', shell=True)
+        for t in str(ts).split(r'\n'):
+            if 'mq_id=' + str(mq_id) in t:
+                pid = re.findall(r'\b(\d+?)\b', t)[-1]
+                subprocess.call('taskkill /T /F /PID %s' % pid, shell=True)
 
     task_id = request.GET['id']
     task = DB_tasks.objects.filter(id=int(task_id))[0]
@@ -204,6 +213,7 @@ def stop_task(request):
             if now_task.status == '压测中':
                 try:
                     s_mac()
+                    s_win()
                 except:
                     break
                 finally:
@@ -212,7 +222,5 @@ def stop_task(request):
             else:
                 break
     else:
-        pass
-    return HttpResponse('')
-
-    return HttpResponse('')
+        HttpResponse(json.dumps({"code": 300, "data": [], 'Message': '任务已结束'}), content_type='application/json')
+    return HttpResponse(json.dumps({"code": 200, "data": [], 'Message': '终止成功'}), content_type='application/json')
