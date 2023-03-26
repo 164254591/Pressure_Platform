@@ -76,7 +76,7 @@
         <el-table-column label='操作' width="150px">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" >报告</el-button>
-            <el-button :id="'stop_btn'+scope.row.id" size="mini" type="danger" @click="stop(scope.row.id)">终止</el-button>
+            <el-button :disabled="get_able(scope.row.status)" :id="'stop_btn'+scope.row.id" size="mini" type="danger" @click="stop(scope.row.id)">终止</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -118,6 +118,9 @@ export default {
   },
   methods:{
     projects_cc(pageNumber){
+      if(pageNumber==0){
+        pageNumber=1
+      }
       if (pageNumber-this.projects_total/this.projects_pz>=1){
         pageNumber--;
       }
@@ -191,11 +194,18 @@ export default {
       axios.get('/stop_task/?id='+id).then(res=>{
         d.innerText='已终止'
         this.$message({
-          message:'终止成功！',
+          message:res.data.Message,
           type:"error"
         })
       })
     },
+    get_able(status){
+      if(status=='队列中'|| status=='压测中'){
+        return false
+      }else{
+        return true
+      }
+    }
 
   },
   mounted() {

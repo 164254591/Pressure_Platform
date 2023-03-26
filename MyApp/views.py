@@ -129,9 +129,9 @@ def play(mq):
     def doit(filepath):
         subprocess.call('python ' + filepath + ' mq_id=' + str(mq.id), shell=True)
 
-    def one_round(filepath):
+    def one_round(filepath, num):
         ts = []
-        for n in range(num):
+        for n in range(int(num)):
             t = threading.Thread(target=doit, args=(filepath,))
             t.setDaemon(True)
             ts.append(t)
@@ -152,15 +152,21 @@ def play(mq):
     print(scripts)
     for step in project.plan.split(','):
         script = scripts[int(step.split('-')[0])]  # 脚本序号
-        print(script)
-        num = int(step.split('-')[1])  # 并发数
+
         round = int(step.split('-')[2])  # 轮次
         filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', script)
         print(filepath)
 
         trs = []
         for r in range(round):
-            tr = threading.Thread(target=one_round, args=(filepath,))
+            if '/' in step:
+                mid = step.split('-')[1]
+                num = int(mid.split('/')[0]) + (int(mid.split('/')[1]) - int(mid.split('/')[0])) / (round - 1) * r
+                print(num)
+                num = int(num)
+            else:
+                num = int(step.split('-')[1])  # 并发数
+            tr = threading.Thread(target=one_round, args=(filepath, num))
             tr.setDaemon(True)
             trs.append(tr)
         # tr是轮

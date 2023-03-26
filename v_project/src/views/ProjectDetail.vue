@@ -42,6 +42,14 @@
             <el-form-item label="压测计划:" style="text-align: left;">
               <el-input v-model="project_detail.plan"></el-input>
             </el-form-item>
+            <el-form-item label="计划说明:" style="text-align: left">
+              <span style="font-size: xx-small;text-align: left;">
+                (多个阶段用英文逗号,隔开，每秒发一轮;请不要忽略压测机性能而随意填充大数字进行压测)<br>
+                【常量压测】0-5-2:下标为0(指第一个脚本)的脚本执行2轮，每轮次5个并发 <br>
+                【阶梯压测】0-10/90-5：下标为0的脚本执行5轮，并发量从10逐步增加到90，即10,30,50,70,90 <br>
+
+              </span>
+            </el-form-item>
             <el-form-item>
               <el-button type="primary" @click="run_visible=true">加入队列</el-button>
               <el-button @click="restore">恢复默认</el-button>
