@@ -94,9 +94,10 @@ def save_project(request):
 
 # 上传文件
 def upload_script_file(request):
+    script_model = request.POST.get('script_model')
     myFile = request.FILES.get('script_file')
     file_name = str(myFile)
-    fp = open('scripts/' + file_name, 'wb+')
+    fp = open('scripts/' + script_model + '/' + file_name, 'wb+')
     for i in myFile.chunks():
         fp.write(i)
     fp.close()

@@ -16,6 +16,7 @@
         </template>
         <el-menu-item @click="project_list_visible=true">项目管理</el-menu-item>
         <el-menu-item @click="get_tasks" >任务面板</el-menu-item>
+        <el-menu-item @click="up_script_visible=true" >上传脚本</el-menu-item>
         <el-menu-item index="/env">环境管理</el-menu-item>
       </el-submenu>
 
@@ -61,6 +62,25 @@
       </el-pagination>
     </el-dialog>
 
+    <el-dialog title="上传脚本" :visible.sync="up_script_visible" style="line-height:18px;width: 100%;">
+      <el-select v-model="script_model" style="float: left">
+        <el-option label="other脚本(低性能)" value="other"></el-option>
+        <el-option label="python脚本(中性能)" value="python"></el-option>
+        <el-option label="go脚本(高性能)" value="go"></el-option>
+      </el-select>
+      <br><br><br>
+      <el-upload
+          :data="{'script_model':script_model}"
+          style="float: left"
+          :action="get_action()"
+          :limit="1"
+          name="script_file"
+    >
+        <el-button size="mini" type="primary">上传脚本</el-button>
+      </el-upload>
+      <br><br><br><br>
+    </el-dialog>
+
     <el-dialog :before-close="close_tasks" title="任务面板" width="65%" :visible.sync="task_visible" style="line-height:18px;width:80%">
       <el-table :data="part_tasks">
         <el-table-column prop="id" label="任务ID" ></el-table-column>
@@ -89,6 +109,7 @@
         @current-change = 'tasks_cc'>
       </el-pagination>
     </el-dialog>
+
   </div>
 </template>
 
@@ -114,9 +135,14 @@ export default {
       tasks_pz:5,
       part_tasks:[],
       tasks_pageNumber:1,
+      up_script_visible:false,
+      script_model:'other',
     }
   },
   methods:{
+    get_action(){
+      return process.env.VUE_APP_BASE_URL+'/upload_script_file/'
+    },
     projects_cc(pageNumber){
       if(pageNumber==0){
         pageNumber=1
