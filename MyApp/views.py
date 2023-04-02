@@ -152,18 +152,28 @@ def play(mq):
     print(scripts)
     for step in project.plan.split(','):
         script = scripts[int(step.split('-')[0])]  # 脚本序号
-
-        round = int(step.split('-')[2])  # 轮次
         filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', script)
         print(filepath)
 
         trs = []
+        if '+' in step:  # 【无限增压】
+            round = 100  # 安全值
+        elif '_' in step:  # 瞬时增压
+            round = int(step.split('-')[2]) * int(step.count('_') + 1)
+        else:
+            round = int(step.split('-')[2])  # 轮次
         for r in range(round):
-            if '/' in step:
+            if '/' in step:  # 【阶梯压测】
                 mid = step.split('-')[1]
                 num = int(mid.split('/')[0]) + (int(mid.split('/')[1]) - int(mid.split('/')[0])) / (round - 1) * r
+            elif '+' in step:
+                mid = step.split('-')[1]
+                num = int(mid.split('+')[0]) + int(mid.split('+')[1]) * r
+            elif '_' in step:  # 瞬时增压
+                mid = step.split('-')[1]
+                mid = mid.split('_')
+                num = int(mid[int(r / int(step.split('-')[2]))])
                 print(num)
-                num = int(num)
             else:
                 num = int(step.split('-')[1])  # 并发数
             tr = threading.Thread(target=one_round, args=(filepath, num))
