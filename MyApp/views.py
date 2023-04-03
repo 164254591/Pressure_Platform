@@ -81,7 +81,7 @@ def delete_project(request):
 def get_project_detail(request):
     project_id = request.GET['project_id']
     project_detail = list(DB_Projects.objects.filter(id=project_id).values())[0]
-    project_detail['scripts'] = eval(project_detail['scripts'])
+    project_detail['plan'] = eval(project_detail['plan'])
     return HttpResponse(json.dumps(project_detail))
 
 
@@ -131,13 +131,20 @@ def add_tasks(request):
 
 
 def play(mq):
-    def doit(filepath):
+    def doit_other(filepath):
         subprocess.call('python ' + filepath + ' mq_id=' + str(mq.id), shell=True)
 
-    def one_round(filepath, num):
+    def doit_python(filepath):
+        print('python')
+
+    def doit_go(filepath):
+        print('go')
+
+    def one_round(filepath, num, script_model):
         ts = []
+        target = {'other': doit_other, 'python': doit_python, 'go': doit_go}[script_model]
         for n in range(int(num)):
-            t = threading.Thread(target=doit, args=(filepath,))
+            t = threading.Thread(target=target, args=(filepath,))
             t.setDaemon(True)
             ts.append(t)
         for t in ts:
@@ -156,8 +163,9 @@ def play(mq):
     scripts = eval(project.scripts)
     print(scripts)
     for step in project.plan.split(','):
-        script = scripts[int(step.split('-')[0])]  # 脚本序号
-        filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', script)
+        script = scripts[int(step.split('-')[0])].split('/')  # 脚本序号
+        filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', script[0],
+                                script[1])
         print(filepath)
 
         trs = []
@@ -181,7 +189,7 @@ def play(mq):
                 print(num)
             else:
                 num = int(step.split('-')[1])  # 并发数
-            tr = threading.Thread(target=one_round, args=(filepath, num))
+            tr = threading.Thread(target=one_round, args=(filepath, num, script[0]))
             tr.setDaemon(True)
             trs.append(tr)
         # tr是轮

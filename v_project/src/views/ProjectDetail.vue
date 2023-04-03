@@ -18,33 +18,47 @@
             <el-form-item label="项目名称:" style="text-align: left;">
               <el-input v-model="project_detail.name"></el-input>
             </el-form-item>
-            <el-form-item label="脚本列表:" style="text-align: left;">
-              <el-select v-model="project_detail.scripts" multiple placeholder="请选择脚本" style="width: 100%">
-                <el-option
-                  v-for="(i,index) in script_list"
-                  :label="'【'+index+'】'+i"
-                  :value="i"
-                >
-                </el-option>
-              </el-select>
+            <el-form-item label="压测计划:">
+              <el-table :data="project_detail.plan">
+                <el-table-column label="脚本名" >
+                  <template  slot-scope="scope">
+                    <el-select v-model="scope.row.name" placeholder="请选择">
+                      <el-option
+                        v-for="i in script_list"
+                        :label="i"
+                        :value="i"
+                      >
+                      </el-option>
+                    </el-select>
+                  </template>
 
-              <el-upload
-                  style="float: left"
-                  :action="get_action()"
-                  :limit="1"
-                  name="script_file"
-                  :on-success="get_script_list"
-              >
-                <el-button size="mini" type="primary">上传脚本</el-button>
-                <span style="font-size: xx-small;color: darkgray">（上传同名脚本会覆盖）</span>
-              </el-upload>
+                </el-table-column>
+                <el-table-column label="原始并发数">
+                  <template slot-scope="scope">
+                    <el-input v-model="scope.row.old_num"></el-input>
+                  </template>
+                </el-table-column>
+                 <el-table-column label="原始轮数">
+                  <template slot-scope="scope">
+                    <el-input v-model="scope.row.old_round"></el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column>
+                  <template slot="header">
+                    <el-button size="mini" type="primary" @click="add_step">新增阶段</el-button>
+                  </template>
+                  <template slot-scope="scope">
+                    <el-button size="mini" type="danger" @click="del_step(scope.$index)">删除阶段</el-button>
+                  </template>
+                </el-table-column>
+
+              </el-table>
+
             </el-form-item>
-            <el-form-item label="压测计划:" style="text-align: left;">
-              <el-input v-model="project_detail.plan"></el-input>
-            </el-form-item>
+
             <el-form-item label="计划说明:" style="text-align: left">
               <span style="font-size: xx-small;text-align: left;">
-                (多个阶段用英文逗号,隔开，每秒发一轮;请不要忽略压测机性能而随意填充大数字进行压测)<br>
+                (每阶段运行完后才会运行下一轮，每秒发一轮;请不要忽略压测机性能而随意填充大数字进行压测)<br>
                 【常量压测】0-5-2:下标为0(指第一个脚本)的脚本执行2轮，每轮次5个并发 <br>
                 【阶梯压测】0-10/90-5：下标为0的脚本执行5轮，并发量从10逐步增加到90，即10,30,50,70,90 <br>
                 【无限增压】0-10+5：下标为0的脚本从10并发，每轮增加5并发（安全阈值为100轮）,注意增量不要太大 <br>
@@ -91,6 +105,12 @@ export default {
     }
   },
   methods: {
+    add_step(){
+      this.project_detail.plan.push({'name': '', 'old_num': '', 'old_round': ''})
+    },
+    del_step(index){
+      this.project_detail.plan.splice(index,1)
+    },
     restore(){
       window.location.reload()
     },
@@ -115,7 +135,7 @@ export default {
     },
     get_script_list(){
        axios.get('/get_script_list/').then(res=>{
-      this.script_list=res.data
+       this.script_list=res.data
         });
     }
 
