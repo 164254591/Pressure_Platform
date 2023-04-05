@@ -132,6 +132,7 @@ def add_tasks(request):
 
 def play(mq):
     def doit_other(filepath):
+        # print('other')
         subprocess.call('python ' + filepath + ' mq_id=' + str(mq.id), shell=True)
 
     def doit_python(filepath):
@@ -159,37 +160,38 @@ def play(mq):
     task.update(status='压测中')
     # --------------
     # 根据任务关联的项目id，去数据库找出这项目的所有内容
+    # {'name': '脚本类型/脚本名字', 'old_num': '10+', 'old_round': '3'}
     project = DB_Projects.objects.filter(id=int(task[0].project_id))[0]
-    scripts = eval(project.scripts)
-    print(scripts)
-    for step in project.plan.split(','):
-        script = scripts[int(step.split('-')[0])].split('/')  # 脚本序号
-        filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', script[0],
-                                script[1])
+    plan = eval(project.plan)
+    for step in plan:
+        script_model = step['name'].split('/')[0]
+        script_name = step['name'].split('/')[1]
+        # script = scripts[int(step.split('-')[0])].split('/')  # 脚本序号
+        filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', script_model,
+                                script_name)
         print(filepath)
 
         trs = []
-        if '+' in step:  # 【无限增压】
+        if '+' in step['old_num']:  # 【无限增压】
             round = 100  # 安全值
-        elif '_' in step:  # 瞬时增压
-            round = int(step.split('-')[2]) * int(step.count('_') + 1)
+        elif '_' in step['old_num']:  # 瞬时增压
+            round = int(step['old_round']) * int(step['old_num'].count('_') + 1)
         else:
-            round = int(step.split('-')[2])  # 轮次
+            round = int(step['old_round'])  # 轮次
         for r in range(round):
-            if '/' in step:  # 【阶梯压测】
-                mid = step.split('-')[1]
+            if '/' in step['old_num']:  # 【阶梯压测】
+                mid = step['old_num']
                 num = int(mid.split('/')[0]) + (int(mid.split('/')[1]) - int(mid.split('/')[0])) / (round - 1) * r
-            elif '+' in step:
-                mid = step.split('-')[1]
-                num = int(mid.split('+')[0]) + int(mid.split('+')[1]) * r
-            elif '_' in step:  # 瞬时增压
-                mid = step.split('-')[1]
-                mid = mid.split('_')
-                num = int(mid[int(r / int(step.split('-')[2]))])
-                print(num)
+            elif '+' in step['old_num']:  # 无限增压
+                mid = step['old_num']
+                num = int(mid.split('+')[0]) + int(step['old_round']) * r
+            elif '_' in step['old_num']:  # 瞬时增压
+                mid = step['old_num'].split('_')
+                num = int(mid[int(r / int(step['old_round']))])
+
             else:
-                num = int(step.split('-')[1])  # 并发数
-            tr = threading.Thread(target=one_round, args=(filepath, num, script[0]))
+                num = int(step['old_num'])  # 并发数
+            tr = threading.Thread(target=one_round, args=(filepath, num, script_model))
             tr.setDaemon(True)
             trs.append(tr)
         # tr是轮
