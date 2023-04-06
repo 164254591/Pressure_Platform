@@ -7,7 +7,7 @@ import time
 from django.shortcuts import render
 
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib import auth
 from django.contrib.auth.models import User
 from MyApp.models import *
@@ -131,21 +131,22 @@ def add_tasks(request):
 
 
 def play(mq):
-    def doit_other(filepath):
+    def doit_other(filepath, sp):
         # print('other')
-        subprocess.call('python ' + filepath + ' mq_id=' + str(mq.id), shell=True)
+        _bin = dz[script_name.split('.')[-1]]  # 通过文件后缀识别使用哪种命令运行脚本，python  ***.py  ;java  ***.java
+        subprocess.call(_bin + ' ' + filepath + ' ' + sp + ' mq_id=' + str(mq.id), shell=True)
 
-    def doit_python(filepath):
-        print('python')
+    def doit_python(filepath, sp):
+        exec('from scripts.python.%s import %s \n%s' % (script_name.split('.')[0], sp.split('(')[0], sp))
 
     def doit_go(filepath):
         print('go')
 
-    def one_round(filepath, num, script_model):
+    def one_round(filepath, num, script_model, sp):
         ts = []
         target = {'other': doit_other, 'python': doit_python, 'go': doit_go}[script_model]
         for n in range(int(num)):
-            t = threading.Thread(target=target, args=(filepath,))
+            t = threading.Thread(target=target, args=(filepath, sp))
             t.setDaemon(True)
             ts.append(t)
         for t in ts:
@@ -154,6 +155,7 @@ def play(mq):
             t.join()
         print('----------结束了一轮次的压测计划--------------')
 
+    dz = {'py': 'python', 'java': 'java', 'php': 'php'}  # 文件后缀对应命令字典
     message = json.loads(mq.message)
     task_id = message['task_id']
     task = DB_tasks.objects.filter(id=int(task_id))
@@ -166,6 +168,7 @@ def play(mq):
     for step in plan:
         script_model = step['name'].split('/')[0]
         script_name = step['name'].split('/')[1]
+        sp = step['sp']
         # script = scripts[int(step.split('-')[0])].split('/')  # 脚本序号
         filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'scripts', script_model,
                                 script_name)
@@ -191,7 +194,7 @@ def play(mq):
 
             else:
                 num = int(step['old_num'])  # 并发数
-            tr = threading.Thread(target=one_round, args=(filepath, num, script_model))
+            tr = threading.Thread(target=one_round, args=(filepath, num, script_model, sp))
             tr.setDaemon(True)
             trs.append(tr)
         # tr是轮
@@ -255,3 +258,9 @@ def stop_task(request):
     else:
         HttpResponse(json.dumps({"code": 300, "data": [], 'Message': '任务已结束'}), content_type='application/json')
     return HttpResponse(json.dumps({"code": 200, "data": [], 'Message': '终止成功'}), content_type='application/json')
+
+
+def clear_all(request):
+    DB_tasks.objects.all().delete()
+    DB_django_task_mq.objects.all().delete()
+    return HttpResponseRedirect('/')

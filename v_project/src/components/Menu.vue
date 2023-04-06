@@ -27,6 +27,7 @@
         </template>
         <a href="http://localhost:8000/admin"><el-menu-item>进入后台</el-menu-item></a>
         <a href="http://localhost:8000/admin/auth/user"><el-menu-item>用户管理</el-menu-item></a>
+        <a href="http://localhost:8000/clear_all"><el-menu-item>清空任务消息</el-menu-item></a>
 
         <el-menu-item>任务面板</el-menu-item>
         <el-menu-item>环境管理</el-menu-item>
